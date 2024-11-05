@@ -6,6 +6,10 @@ from functools import wraps
 url = "mongodb+srv://harshadkokkinti:RkvSports@cluster0.ii5oq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(url, server_api=ServerApi("1"), connectTimeoutMS=50000)
 
+GITHUB_TOKEN = ""
+REPO_OWNER = "Harshad712"
+REPO_NAME = "RKV-SPORTS-TEST"
+FOLDER_PATH = "samples"
 
 
 

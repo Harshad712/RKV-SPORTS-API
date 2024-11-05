@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import routes.users as users
+import routes.students as students
+import routes.banner as banner
 app = FastAPI()
 
 app.add_middleware(
@@ -11,7 +12,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 #including routers
-app.include_router(users.app,prefix="/users")
+app.include_router(students.app,prefix="/students")
+app.include_router(banner.app,prefix = "/banner")
 
 
 @app.get("/",tags=["Root"])
