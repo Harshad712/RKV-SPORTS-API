@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,HttpUrl
 from typing import Optional
 from datetime import datetime
 
@@ -17,4 +17,4 @@ class update_student(BaseModel):
     mail : Optional[str]
     gender : Optional[str]
     password : Optional[str]
-    #profie_url:str
+   # profie_url:Optional[HttpUrl]

@@ -1,16 +1,14 @@
-from fastapi import HTTPException,Form,File,UploadFile
-from bson import ObjectId
-from utilities.utils import client
-from utilities.git_hub_utilities import upload_to_github,delete_file_from_github
-from models.student_model import Student,update_student
+from fastapi import Form,File,UploadFile
+from utilities.utils import handle_exception
 from typing import Optional
-import logging
+from services.student_services import StudentService
 
-my_db = client['Rkv-Sports']
-students_db = my_db.students
+student_service = StudentService()
+
 
 class Students():
     @staticmethod
+    @handle_exception
     async def create_student(student_name:str = Form(...) ,
                              student_id:str = Form(...),
                              year:str = Form(...),
@@ -35,48 +33,18 @@ class Students():
         HTTPException: If a user with the same ID already exists (status code 409).
         HTTPException: If there is an error while creating the new user (status code 400).
     """
-
-        student_exists = await students_db.find_one({"student_id":student_id})
-        if student_exists :
-            raise HTTPException(
-                status_code = 409,
-                detail = "A Student already found with the same Id."
-            )
+        return await student_service.create_student(student_name=student_name,
+                                                    student_id=student_id,
+                                                    year=year,
+                                                    mail=mail,
+                                                    gender=gender,
+                                                    password=password,
+                                                    profile_image=profile_image)
        
-        student = Student(
-            student_name= student_name,
-            student_id = student_id,
-            year = year,
-            mail = mail,
-            gender = gender,
-            password= password
-        )
-        student = student.model_dump()
-
-        if profile_image:
-
-            profile_image_size = len(await profile_image.read())
-            max_length = 10*1024*1024
-            if profile_image_size > max_length:
-                raise HTTPException(status_code=413, detail="File Size Exceeds the limit 10 MB.")
-
-            profile_image_content = await profile_image.read()
-            profile_image_response = await upload_to_github(profile_image_content,profile_image.filename)
-            if profile_image_response.status_code ==201 :
-                 profile_url = profile_image_response.json().get("content", {}).get("html_url", "")
-                 student["profile_url"] = profile_url
-            else :
-                raise HTTPException(status_code=400,detail="Error While Uploading The File Into Github")
-
-        result = await students_db.insert_one(student)
-        if result.inserted_id:
-            student["_id"] = str(result.inserted_id)
-            return {"message":"Student Created Successfully"}
-        else:
-            raise HTTPException(status_code=400,detail = "Error While creating the new student")
         
 
     @staticmethod
+    @handle_exception
     async def get_all_students() -> list :
 
         """
@@ -88,18 +56,10 @@ class Students():
         Raises:
             HTTPException: If no students are found in the database (status code 404).
         """
-        students=[]
-        async for student in  students_db.find():
-            student["_id"] = str(student["_id"])
-            students.append(student)
-        if not students:
-            raise HTTPException(
-                status_code=404,
-                detail = "No Users Found."
-            )
-        return students
+        return await student_service.get_all_students()
     
     @staticmethod
+    @handle_exception
     async def get_student_id(student_id:str) -> dict:
 
         """
@@ -114,17 +74,10 @@ class Students():
         Raises:
             HTTPException: If no student is found with the given ID (status code 404).
         """
-        user =await  students_db.find_one({"student_id":student_id})
-        if not user:
-            raise HTTPException(
-                status_code=404,
-                detail="No user found with the given id."
-            )
-        user["_id"] = str(user["_id"])
-
-        return user
+        return await student_service.get_student_by_id(student_id=student_id)
     
     @staticmethod
+    @handle_exception
     async def update_student_details(student_id:str,
                                   student_name :Optional[str] = None,
                                   year : Optional[str]= None,
@@ -150,39 +103,15 @@ class Students():
         HTTPException: If the user is found but no modifications were made (status code 404).
         HTTPException: On successful update (status code 201).
     """
-        user_exists = await students_db.find_one({"student_id":student_id})
-        if not user_exists :
-            raise HTTPException(
-                status_code = 404,
-                detail = "User not found with the given id."
-            )
-        
-        user = update_student(
-            student_name = student_name,
-            year = year,
-            mail = mail,
-            gener = gender,
-            password = password
-
-        )
-        user = user.model_dump()
-       
-        user = {k:v  for k,v in user.items() if v is not None}
-        if not user :
-            raise HTTPException(
-                status_code= 400,
-                detail = "No data Provided for update"
-            )
-        user_update = await students_db.update_one(
-            {"student_id":student_id},
-            {"$set":user}
-        )
-        if user_update.modified_count == 0:
-            raise HTTPException(status_code=404, detail="No User found with the given ID or no changes made")
-        
-        return{"message":"User updated Successfully."}
+        return await student_service.update_student_details(student_id=student_id,
+                                                            student_name=student_name,
+                                                            mail=mail,
+                                                            year=year,
+                                                            gender=gender,
+                                                            password=password)
     
     @staticmethod
+    @handle_exception
     async def update_student_profile(student_id:str,profile_image:UploadFile = File(...)):
         
         """
@@ -206,35 +135,10 @@ class Students():
     Returns:
         None: Raises HTTPException with appropriate messages indicating the result of the operation.
     """
-        user = await students_db.find_one({"student_id":student_id})
-        if not user :
-            raise HTTPException(
-                status_code = 404,
-                detail = "User not found with the given id."
-            )
-        
-        if profile_image :
-            
-            profile_image_delete = await delete_file_from_github(user["profile_url"])
-
-            if profile_image_delete.status_code != 200:
-                raise HTTPException(status_code=409, detail="conflict : Unable to change the file")
-            profile_image_content = await profile_image.read()
-            profile_image_response = await upload_to_github(profile_image_content, profile_image.filename)
-            if profile_image_response.status_code == 201:
-                profile_image_url = profile_image_response.json().get("content", {}).get("html_url", "")
-                user["profile_url"] = profile_image_url
-
-            else:
-                raise HTTPException(status_code=400, detail="Error while uploading the cover image")
-            
-        profile_update = await students_db.update_one({"student_id": student_id},{"$set": {"profile_url": profile_image_url}})
-        if profile_update.modified_count == 0:
-            raise HTTPException(status_code=400,detail="profile_image isn't changed")
-
-        raise HTTPException(status_code=201, detail="profile_image changed Successfully")
+        return await student_service.update_student_profile(student_id=student_id,profile_image=profile_image)
 
     @staticmethod
+    @handle_exception
     async def delete_student(student_id:str)->dict:
 
         """
@@ -250,19 +154,4 @@ class Students():
         HTTPException: If no user is found with the given ID (status code 404).
         HTTPException: If the deletion fails for any reason (status code 500).
     """
-        user = await students_db.find_one({"student_id":student_id})
-
-        if not user :
-            raise HTTPException(
-                status_code = 404,
-                detail = "User not found with the given id."
-            )
-        delete_user = await students_db.delete_one({"student_id":student_id})
-        if delete_user.deleted_count == 1:
-           return {"message":"User Deleted successfully"}
-        else:
-            raise HTTPException(
-                status_code=500,
-                detail = "failed to delete the user"
-            )
-
+        return await student_service.delete_student(student_id=student_id)
