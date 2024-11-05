@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import routes.students as students
 import routes.banner as banner
+import routes.home as home 
 app = FastAPI()
 
 app.add_middleware(
@@ -14,6 +15,7 @@ app.add_middleware(
 #including routers
 app.include_router(students.app,prefix="/students")
 app.include_router(banner.app,prefix = "/banner")
+app.include_router(home.app,prefix="/home")
 
 
 @app.get("/",tags=["Root"])

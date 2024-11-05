@@ -6,4 +6,4 @@ import datetime
 class BlockModel(BaseModel):
     block_name: str
     block_content: str
-    block_image_url: HttpUrl
+   # block_image_url: HttpUrl

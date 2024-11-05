@@ -1,7 +1,7 @@
 from motor.motor_asyncio import  AsyncIOMotorCollection
 from typing import TypeVar
 from models.banner_model import Banner_model
-from crud_repo import CrudRepository  
+from repository.crud_repo import CrudRepository  
 from utilities.utils import client
 
 my_db = client['Rkv-Sports']

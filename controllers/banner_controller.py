@@ -1,14 +1,13 @@
 from fastapi import HTTPException, File, UploadFile, Form
-from utilities.utils import client
 from models.banner_model import Banner_model
 from utilities.git_hub_utilities import upload_to_github,delete_file_from_github
-from bson import ObjectId
+from services.banner_services import BannerService
+from utilities.utils import handle_exception
 
-mydb = client['Rkv-Sports']
-banner_db = mydb.Banners
-
+banner_service = BannerService()
 class Banners() :
     @staticmethod
+    @handle_exception
     async def get_banners() :
         """
         Retrieve all banner images from the database, sorted by creation date.
@@ -26,19 +25,10 @@ class Banners() :
             HTTPException: If no banners are found in the database.
         """
 
-        banners = []
-        async for banner in banner_db.find().sort("created_at",-1):
-            banner["_id"] = str(banner["_id"])
-            banners.append(banner)
-        if not banners :
-            raise HTTPException(
-                status_code = 404,
-                detail = "No Banners Found.Please Upload the Banner before fetching"
-            )
-        return banners
-
+        return await banner_service.get_banners()
     
     @staticmethod
+    @handle_exception
     async def upload_banner(banner_id : str = Form(...),banner_image : UploadFile = File(...) ) :
         """
         Upload a new banner image to GitHub and store the banner details in the database.
@@ -65,35 +55,11 @@ class Banners() :
             
             HTTPException: If there is an error inserting the banner data into the database.
         """
-
-        banner = Banner_model(banner_id = banner_id)
-        banner = banner.model_dump()
-
-        banner_content = await banner_image.read()
-        banner_response = await upload_to_github(banner_content, banner_image.filename)
-        if banner_response.status_code == 201 :
-            banner_url = banner_response.json().get("content", {}).get("html_url", "")
-        else :
-            raise HTTPException(
-                status_code= 400,
-                detail= "Error While Uploading into github"
-            )
-        banner["banner_link"] = banner_url
-        result = await banner_db.insert_one(banner)
-        if result.inserted_id :
-            banner["_id"] = str(result.inserted_id)
-            return {
-                "Message":"Banner Uploaded Successfully",
-                "_id" : str(result.inserted_id)
-            }
-        else :
-            raise HTTPException(
-                status_code= 400,
-                detail = "Error While Uploading into Database"
-            )
+        return await banner_service.upload_banner(banner_id = banner_id,banner_image = banner_image)
 
 
     @staticmethod
+    @handle_exception
     async def update_banner(banner_id : str,banner_image: UploadFile = File(...)):
         """
         Update an existing banner's image in the database.
@@ -126,47 +92,9 @@ class Banners() :
         """
         
         
-        banner = await banner_db.find_one({"banner_id":banner_id})
-
-        if not banner :
-            raise HTTPException(status_code = 404 , detail = "Banner not found with the given id.")
-        
-        #Deleting the old banner_image form the github
-        banner_delete = await delete_file_from_github(banner["banner_link"])
-
-        if banner_delete.status_code !=200 :
-            raise HTTPException(
-                status_code = 409,
-                detail = "Conflict : Unalbe to upload the banner"
-            )
-
-        #uploading the new banner_image  into github
-        banner_content = await banner_image.read()
-
-        banner_response  = await upload_to_github(banner_content,banner_image.filename)
-
-        if banner_response.status_code == 201:
-            banner_url = banner_response.json().get("content", {}).get("html_url", "")
-        else :
-            raise HTTPException(
-                status_code=400, detail="Error Uploading file into github"
-            )
-
-        banner_update = await banner_db.update_one(
-            {"banner_id":banner_id},
-            {"$set":{"banner_link":banner_url}}
-        )
-        if banner_update.modified_count == 0:
-            raise HTTPException(
-                status_code = 400,
-                detail = "banner_image isn't changed"
-            )
-        raise HTTPException(
-            status_code = 201,
-            detail = "banner_image updated successfully"
-        )
-    
+        return await banner_service.update_banner(banner_id = banner_id,banner_image = banner_image)
     @staticmethod
+    @handle_exception
     async def delete_banner(banner_id:str):
 
         """
@@ -183,21 +111,4 @@ class Banners() :
         HTTPException: A success message if the banner is successfully deleted.
     """
         
-        banner = await banner_db.find_one({"banner_id":banner_id})
-
-        if not banner :
-            raise HTTPException(status_code = 404 , detail = "Banner not found with the given id.")
-        
-        banner_delete = await delete_file_from_github(banner["banner_link"])
-
-        if banner_delete.status_code !=200 :
-            raise HTTPException(
-                status_code = 409,
-                detail = "Conflict : Unalbe to delete the banner"
-            )
-        banner_delete = await banner_db.delete_one({"banner_id": banner_id})
-        if banner_delete.deleted_count == 1:
-            return{"status_code":200,"detail":f"Banner with id {banner_id} is successfully deleted"}
-        else:
-            raise HTTPException(
-                status_code=500, detail="Failed to delete the Banner")
+        return await banner_service.delete_banner(banner_id = banner_id)
