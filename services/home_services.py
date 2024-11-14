@@ -5,8 +5,7 @@ from repository.home_repo import home_repo
 from utilities.git_hub_utilities import upload_to_github, delete_file_from_github
 from utilities.utils import client
 
-mydb = client["Rkv-Sports"]
-home_db = mydb.home
+
 
 class HomeService:
 
@@ -15,7 +14,7 @@ class HomeService:
         for block in blocks:
             block["_id"] = str(block["_id"])
         if not blocks:
-            raise HTTPException(status_code=404, detail="No Banners Found.")
+            raise HTTPException(status_code=404, detail="No Blocks Found.")
         return blocks
      
     async def get_block_byname(self,block_name: str) -> dict:
@@ -26,13 +25,13 @@ class HomeService:
          block["_id"] = str(block["_id"])
          return block\
          
-    async def update_block(self,block_name: str, data: BlockModel) -> dict:
+    async def update_block(self,block_name: str, block_content:str) -> dict:
 
         block = await home_repo.find_by({"block_name": block_name.lower()})
         if not block:
             raise HTTPException(status_code=404, detail="Data not found in the database.")
-
-        updated_data = data.model_dump()
+        update_block = BlockModel(block_name = block_name,block_content = block_content)
+        updated_data = update_block.model_dump(exclude_unset=True)
         update_data = {k: v for k, v in updated_data.items()if v is not None}
         await home_repo.update(block["_id"],update_data)
         return {"message": "Block updated successfully"}
@@ -62,7 +61,7 @@ class HomeService:
 
         # Insert the new block
         new_block = BlockModel(
-            block_name = block_name,
+            block_name = block_name.lower(),
             block_content = block_content,
         )
         new_block = new_block.model_dump()
@@ -78,3 +77,15 @@ class HomeService:
                 raise HTTPException(status_code=400,detail="Error While Uploading The File Into Github")
         await home_repo.create(new_block)
         return {"message":"Block Created Successfully."}
+    
+    async def update_block_image(self,block_name:str = Form(...),block_image:UploadFile = File(...)):
+
+        block = await home_repo.find_by({"block_name": block_name.lower()})
+        if not block:
+            raise HTTPException(
+                status_code=404, detail="Data not found in the database.")
+        delete_block_image = await home_repo.delete_image(block["block_image_url"])
+        block_image_url = await home_repo.upload_image(block_image)
+        await home_repo.update(block["_id"],{"block_image_url":block_image_url})
+
+        return {"message":"Image Updated Successfully."}

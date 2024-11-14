@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import routes.students as students
 import routes.banner as banner
 import routes.home as home 
+import routes.tournament_creation as Tournaments_created
+import routes.tournament_registration as Teams_registered
+
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -16,6 +21,8 @@ app.add_middleware(
 app.include_router(students.app,prefix="/students")
 app.include_router(banner.app,prefix = "/banner")
 app.include_router(home.app,prefix="/home")
+app.include_router(Tournaments_created.app,prefix="/TournamentsCreation")
+app.include_router(Teams_registered.app,prefix="/TeamsRegistration")
 
 
 @app.get("/",tags=["Root"])

@@ -20,9 +20,14 @@ async def get_block_byname(block_name: str) :
     return await Blocks.get_block_byname(block_name)
 
 @app.put("/",summary = "updates the blocks")
-async def update_block(block_name: str, data: BlockModel):
+async def update_block(block_name: str, block_content:str):
     """An API EndPoint to update the block."""
-    return await Blocks.update_block(block_name,data)
+    return await Blocks.update_block(block_name,block_content)
+
+@app.put("/update_block_image",summary = "updates the cover image of the block")
+async def update_block_image(block_name : str = Form(...),block_image : UploadFile = File(...)):
+    """An API EndPoint to update the cover image of the block"""
+    return await Blocks.update_block_image(block_name,block_image)
 
 @app.delete("/",summary="deletes the blocks")
 async def delete_block(block_name: str):

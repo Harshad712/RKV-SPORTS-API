@@ -45,7 +45,7 @@ class Blocks:
 
     @staticmethod
     @handle_exception
-    async def update_block(block_name: str, data: BlockModel) -> dict:
+    async def update_block(block_name: str, block_content: str) -> dict:
         """
         Updates a block by name.
 
@@ -59,7 +59,7 @@ class Blocks:
         Raises:
             HTTPException: If block is not found (404).
         """
-        return await home_service.update_block(block_name=block_name,data = data)
+        return await home_service.update_block(block_name=block_name,block_content= block_content)
 
 
     @staticmethod
@@ -98,3 +98,24 @@ class Blocks:
             HTTPException: If a block with the same name already exists.
         """
         return await home_service.create_block(block_name=block_name,block_content=block_content,block_image=block_image)
+    @staticmethod
+    @handle_exception
+    async def update_block_image(block_name : str = Form(...),block_image : UploadFile = File(...)):
+        """
+    Updates the image of a specified block in the database.
+
+    This function locates a block by its name, deletes its current image,
+    uploads the new image, and updates the database with the new image URL.
+
+    Args:
+        block_name (str): The name of the block whose image is to be updated.
+        block_image (UploadFile): The new image file to upload for the block.
+
+    Raises:
+        HTTPException: If the specified block is not found in the database, 
+                       a 404 error is raised.
+
+    Returns:
+        dict: A dictionary containing a success message if the image is updated successfully.
+    """
+        return await home_service.update_block_image(block_name = block_name,block_image=block_image)

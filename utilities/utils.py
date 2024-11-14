@@ -2,12 +2,15 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from fastapi import HTTPException
 from functools import wraps
+from pydantic import BaseModel
+from bson import ObjectId 
+
 
 url = "mongodb+srv://harshadkokkinti:RkvSports@cluster0.ii5oq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(url, server_api=ServerApi("1"), connectTimeoutMS=50000)
 
 
-GITHUB_TOKEN = ""
+GITHUB_TOKEN = "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"
 REPO_OWNER = "Harshad712"
 REPO_NAME = "RKV-SPORTS-TEST"
 FOLDER_PATH = "samples"
@@ -27,3 +30,19 @@ def handle_exception(function):
             )
 
     return wrapper
+
+
+
+
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v,field = None):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid ObjectId")
+        return ObjectId(v)
+
+
