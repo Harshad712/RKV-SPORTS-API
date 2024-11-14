@@ -10,7 +10,7 @@ url = "mongodb+srv://harshadkokkinti:RkvSports@cluster0.ii5oq.mongodb.net/?retry
 client = AsyncIOMotorClient(url, server_api=ServerApi("1"), connectTimeoutMS=50000)
 
 
-GITHUB_TOKEN = "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"
+GITHUB_TOKEN = ""
 REPO_OWNER = "Harshad712"
 REPO_NAME = "RKV-SPORTS-TEST"
 FOLDER_PATH = "samples"
