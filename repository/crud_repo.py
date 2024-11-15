@@ -4,6 +4,7 @@ from bson import ObjectId
 from pydantic import BaseModel, ValidationError as PydanticValidationError
 from typing import TypeVar, Generic, Optional, List, Dict
 from utilities.git_hub_utilities import upload_to_github,delete_file_from_github
+from utilities.utils import REPO_OWNER,REPO_NAME,FOLDER_PATH,BRANCH
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -76,7 +77,7 @@ class CrudRepository(Generic[T]):
         response = await upload_to_github(file_content, file.filename)
 
         if response.status_code == 201:
-            file_url = response.json().get("content", {}).get("html_url", "")
+            file_url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{FOLDER_PATH}/{file.filename}"
         else:
             raise HTTPException(
                 status_code=400, detail="Error uploading file to GitHub"

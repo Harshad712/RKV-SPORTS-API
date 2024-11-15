@@ -14,6 +14,7 @@ GITHUB_TOKEN = ""
 REPO_OWNER = "Harshad712"
 REPO_NAME = "RKV-SPORTS-TEST"
 FOLDER_PATH = "samples"
+BRANCH = "main"
 
 
 

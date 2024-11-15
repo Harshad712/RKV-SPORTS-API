@@ -30,14 +30,10 @@ class StudentService:
             max_length = 10 * 1024 * 1024  # 10 MB
             if profile_image_size > max_length:
                 raise HTTPException(status_code=413, detail="File Size Exceeds the limit of 10 MB.")
-
-            profile_image_content = await profile_image.read()
-            profile_image_response = await upload_to_github(profile_image_content, profile_image.filename)
-            if profile_image_response.status_code == 201:
-                profile_url = profile_image_response.json().get("content", {}).get("html_url", "")
-                student_data["profile_url"] = profile_url
-            else:
-                raise HTTPException(status_code=400, detail="Error While Uploading The File Into GitHub")
+            profile_url = await student_.upload_image(profile_image)
+           
+            student_data["profile_url"] = profile_url
+           
         update_data = {k: v for k, v in student_data.items()if v is not None}
         result = await student_.create(update_data)  # Ensure this is awaited
         return {"message": "Student Created Successfully", "_id": str(result["_id"])}
@@ -88,19 +84,13 @@ class StudentService:
             raise HTTPException(status_code=404, detail="User not found with the given ID.")
 
         if profile_image:
-            profile_image_delete = await delete_file_from_github(user["profile_url"])
+            await student_.delete_image(user["profile_url"])
 
-            if profile_image_delete.status_code != 200:
-                raise HTTPException(status_code=409, detail="Conflict: Unable to change the file")
 
-            profile_image_content = await profile_image.read()
-            profile_image_response = await upload_to_github(profile_image_content, profile_image.filename)
-            if profile_image_response.status_code == 201:
-                profile_image_url = profile_image_response.json().get("content", {}).get("html_url", "")
-                data = {"profile_url":profile_image_url}
-                await student_.update(user["_id"], data)
-            else:
-                raise HTTPException(status_code=400, detail="Error while uploading the cover image")
+            profile_image_url = await student_.upload_image(profile_image)
+            data = {"profile_url":profile_image_url}
+            await student_.update(user["_id"], data)
+            
 
         return {"message": "Profile image updated successfully."}
 
@@ -109,10 +99,7 @@ class StudentService:
         if not user:
             raise HTTPException(status_code=404, detail="User not found with the given ID.")
         if user["profile_url"] is not None:
-            delete_user_profile = await delete_file_from_github(user["profile_url"])
-
-            if delete_user_profile.status_code != 200:
-                raise HTTPException(status_code=409, detail="Conflict: Unable to delete the profile")
+            await student_.delete_image(user["profile_url"])
 
         await student_.delete(user["_id"])
         return {"message": "User Deleted successfully"}
