@@ -1,6 +1,5 @@
 from fastapi import APIRouter, File, UploadFile, Form
 from controllers.home_controller import Blocks
-from models.home_model import BlockModel
 
 app = APIRouter(tags=['Home'])
 
