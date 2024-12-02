@@ -1,8 +1,8 @@
 from fastapi import HTTPException, UploadFile, File
 from typing import List,Optional
 from models.student_model import Student, update_student  # Your Pydantic models
-from repository.student_repo import student_, update_student_  # Your student repository
-from utilities.login_utilities import pwd_context
+from repository.student_repo import student_
+
 
 class StudentService:
 

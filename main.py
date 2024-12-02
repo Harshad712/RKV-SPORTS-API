@@ -7,6 +7,7 @@ import routes.tournament_creation as Tournaments_created
 import routes.tournament_registration as Teams_registered
 import routes.news as News
 import routes.login as Login
+import routes.matches as Matches
 from utilities.middleware_utilities import JWTMiddleware
 
 
@@ -31,6 +32,7 @@ app.include_router(Tournaments_created.app,prefix="/TournamentsCreation")
 app.include_router(Teams_registered.app,prefix="/TeamsRegistration")
 app.include_router(News.app,prefix="/News")
 app.include_router(Login.app,prefix="/login")
+app.include_router(Matches.app,prefix="/Matches")
 
 
 @app.get("/",tags=["Root"])

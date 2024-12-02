@@ -10,12 +10,7 @@ class JWTMiddleware(BaseHTTPMiddleware):
         """
         Middleware that handles JWT authentication.
         """
-         # Debugging step: log incoming request URL and headers
-        print(f"Request URL: {request.url.path}")
-        print(f"Request Headers: {request.headers}")
-         # Debugging step: log the Authorization header
-        auth_header = request.headers.get("Authorization")
-        print(f"Authorization Header: {auth_header}")
+        
         # Define protected routes that require JWT validation
         protected_routes = ["/login/protected", "/other_protected_route"]  # Add your protected routes here
         

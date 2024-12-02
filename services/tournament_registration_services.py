@@ -60,7 +60,7 @@ class TournamentRegristrationService:
         team["team_profile_url"] = team_profile_url
         team_data = {k: v for k, v in team.items()if v is not None}
     # Create team registration in the database
-        result = await tournament_registration_repo.create(team_data)
+        await tournament_registration_repo.create(team_data)
 
     # Return success message 
         return {"message": "Team registered  successfully"}
