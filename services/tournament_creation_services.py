@@ -24,7 +24,7 @@ class tournament_creation_service :
     match_format: Optional[str] = None,
     entry_fee: Optional[float] = None,
     sport_specific_details: Optional[str] = None,
-    tournament_image: UploadFile = None,
+    tournament_image: UploadFile = File(...),
 ):
     
         tournament_exists = await tournament_creation_repo.find_by({
@@ -44,7 +44,7 @@ class tournament_creation_service :
         if sport_specific_details:
             sport_specific_details = json.loads(sport_specific_details)
      # Initialize `SportSpecificDetails` based on `sport_type`
-        specific_details = None
+        
         if sport_type.lower() == "cricket":
             sport_specific_details = SportSpecificDetails(cricket=CricketDetails(**sport_specific_details))
         elif sport_type.lower() == "kabaddi":
@@ -55,7 +55,7 @@ class tournament_creation_service :
             sport_specific_details = SportSpecificDetails(hockey=HockeyDetails(**sport_specific_details))
         elif sport_type.lower() == "badminton":
             sport_specific_details = SportSpecificDetails(badminton=BadmintonDetails(**sport_specific_details))
-    # You can set the `created_at` and `updated_at` fields directly
+    # You can set the `created_at` and `updated_at` fields directly'''
         created_at = updated_at = datetime.utcnow()
         
         tournament_data = TournamentCreation(tournament_name = tournament_name,
@@ -84,9 +84,9 @@ class tournament_creation_service :
     # Upload tournament image and add the URL to tournament data
         tournament_image_url = await tournament_creation_repo.upload_image(tournament_image)
         tournament["tournament_image_url"] = tournament_image_url
-        update_data = {k: v for k, v in tournament.items()if v is not None}
+        
     # Create tournament in the database
-        result = await tournament_creation_repo.create(update_data)
+        await tournament_creation_repo.create(tournament)
 
     # Return success message along with the created tournament's ID
         return {"message": "Tournament created successfully"}

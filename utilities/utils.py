@@ -2,7 +2,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from fastapi import HTTPException
 from functools import wraps
-from pydantic import BaseModel
 from bson import ObjectId 
 
 

@@ -26,7 +26,7 @@ class Tournamentcreation :
     match_format: Optional[str] = None,
     entry_fee: Optional[float] = None,
     sport_specific_details: Optional[str] = None,
-    tournament_image: UploadFile = None,
+    tournament_image: UploadFile = File(...),
 ):
         """
     Create a new tournament in the database.

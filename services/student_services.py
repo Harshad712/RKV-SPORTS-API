@@ -2,13 +2,13 @@ from fastapi import HTTPException, UploadFile, File
 from typing import List,Optional
 from models.student_model import Student, update_student  # Your Pydantic models
 from repository.student_repo import student_, update_student_  # Your student repository
-from utilities.git_hub_utilities import upload_to_github, delete_file_from_github  # GitHub utility functions
+from utilities.login_utilities import pwd_context
 
 class StudentService:
 
     async def create_student(self, student_name: str, student_id: str, year: str, 
                              mail: str, gender: str, password: str,
-                             profile_image: UploadFile = File(None)) -> dict:
+                             profile_image: UploadFile = None) -> dict:
         
         student_exists = await student_.find_by({"student_id": student_id})
         if student_exists:

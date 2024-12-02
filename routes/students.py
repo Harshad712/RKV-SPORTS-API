@@ -1,5 +1,4 @@
 from fastapi import APIRouter,HTTPException,Form,File,UploadFile
-from utilities.utils import handle_exception
 from controllers.student_controller import Students
 from typing import Optional
 
