@@ -3,6 +3,10 @@ from repository.match_repo import matches_repo
 from repository.tournament_repo import tournament_registration_db
 from models.match_model import Matches,MatchStatus,update_match
 from typing import Optional
+from services.websocket_services import WebSocketManager
+from routes.websockets import websocket_manager
+
+
 
 class MatchesServices:
     
@@ -32,6 +36,7 @@ class MatchesServices:
         updated_data = updated_matches.model_dump(exclude_unset=True)
         update_data = {k: v for k, v in updated_data.items()if v is not None}
         await matches_repo.update(matches["_id"],update_data)
+        await websocket_manager.broadcast(update_data)
         return {"message": "match updated successfully"}
     
     async def delete_matches(self,match_id: str) -> dict:
