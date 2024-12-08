@@ -43,7 +43,7 @@ async def delete_file_from_github(link: str):
         object: httpx.Response object.
     """
     # Extract information from the raw link
-    pattern = r"https://raw.githubusercontent.com/([^/]+)/([^/]+)/([^/]+)/(.*)"
+    pattern = r"https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.*)"
     match = re.match(pattern, link)
     if not match:
         raise HTTPException(

@@ -77,7 +77,7 @@ class CrudRepository(Generic[T]):
         response = await upload_to_github(file_content, file.filename)
 
         if response.status_code == 201:
-            file_url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{FOLDER_PATH}/{file.filename}"
+            file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/{BRANCH}/{FOLDER_PATH}/{file.filename}"
         else:
             raise HTTPException(
                 status_code=400, detail="Error uploading file to GitHub"
