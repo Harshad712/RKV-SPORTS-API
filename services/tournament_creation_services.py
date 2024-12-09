@@ -22,7 +22,7 @@ class tournament_creation_service :
     prize_third_place: str,
     rules: Optional[str] = None,
     match_format: Optional[str] = None,
-    entry_fee: Optional[float] = None,
+    entry_fee: Optional[int] = None,
     sport_specific_details: Optional[str] = None,
     tournament_image: UploadFile = File(...),
 ):
@@ -41,7 +41,7 @@ class tournament_creation_service :
             second_place=prize_second_place,
             third_place=prize_third_place,
         )
-        if sport_specific_details:
+        '''if sport_specific_details:
             sport_specific_details = json.loads(sport_specific_details)
      # Initialize `SportSpecificDetails` based on `sport_type`
         

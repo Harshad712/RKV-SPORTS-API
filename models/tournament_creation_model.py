@@ -54,9 +54,9 @@ class TournamentCreation(BaseModel):
     max_teams: int
     match_format: Optional[str] = None  # E.g., "T20", "3x3"
     team_size: int
-    entry_fee: Optional[float] = None
+    entry_fee: Optional[int] = None
     prize: TournamentPrize
-    sport_specific_details: Optional[SportSpecificDetails] = None
+    sport_specific_details: Optional[str] = None
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     #tournament_image_url:HttpUrl
@@ -72,5 +72,5 @@ class UpateTournament(BaseModel):
     team_size: Optional[int] = None
     entry_fee: Optional[float] = None
     prize: Optional[TournamentPrize] = None
-    sport_specific_details: Optional[SportSpecificDetails] = None
+    sport_specific_details: Optional[str] = None
     
