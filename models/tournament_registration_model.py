@@ -44,6 +44,8 @@ class Player(BaseModel):
 class TournamentRegistration(BaseModel):
     #torunament_id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     team_name: str
+    tournament_name:str
+    sport_type:str
     players: List[Player]
     coach_name: Optional[str] = None
     contact_number: Optional[str] = None

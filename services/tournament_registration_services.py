@@ -11,6 +11,8 @@ class TournamentRegristrationService:
     
     async def register_tournament(self,
     team_name: str ,
+    tournament_name:str,
+    sport_type:str,
     player_ids: List[str] ,  # List of player IDs
     player_names: List[str] ,  # List of player names
     player_positions: List[Optional[str]] =None,  # List of player positions
@@ -42,6 +44,8 @@ class TournamentRegristrationService:
         
         tournament_registration = TournamentRegistration(
         team_name=team_name,
+        tournament_name=tournament_name,
+        sport_type=sport_type,
         players=updated_players,
         coach_name=coach_name,
         contact_number=contact_number,

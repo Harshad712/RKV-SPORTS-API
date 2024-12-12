@@ -14,6 +14,8 @@ class TournamentRegistrationController:
     @handle_exception
     async def register_tournament(
     team_name: str ,
+    tournament_name:str,
+    sport_type:str,
     player_ids: List[str] ,  # List of player IDs
     player_names: List[str] ,  # List of player names
     player_positions: List[Optional[str]] = None,  # List of player positions
@@ -71,7 +73,7 @@ class TournamentRegistrationController:
     - The `team_profile` image is saved and its URL is attached to the registration data.
     - Returns a dictionary containing a success message if the team is registered without conflicts.
     """
-        return await tournament_registration_service.register_tournament(team_name,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status,team_profile)
+        return await tournament_registration_service.register_tournament(team_name,tournament_name,sport_type,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status,team_profile)
     
     @staticmethod
     @handle_exception

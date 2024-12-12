@@ -10,6 +10,8 @@ app = APIRouter(tags=['TournamentRegistration'])
 @app.post("/",summary = "Registers the Team For tournament")
 async def register_tournament(
     team_name: str = Form(...),
+    tournament_name :str = Form(...),
+    sport_type:str = Form(...),
     player_ids: List[str] = Form(...),  # List of player IDs
     player_names: List[str] = Form(...),  # List of player names
     player_positions: List[Optional[str]] = Form(None),  # List of player positions
@@ -22,7 +24,7 @@ async def register_tournament(
     team_profile : UploadFile = File(...)
 ):
     """An API  EndPoint to Register the team for tournament."""
-    return await tournament_registration.register_tournament(team_name,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status,team_profile)
+    return await tournament_registration.register_tournament(team_name,tournament_name,sport_type,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status,team_profile)
 
 @app.get("/",summary = "Fetches all the teams ")
 async def get_all_teams():
