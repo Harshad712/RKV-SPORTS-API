@@ -84,7 +84,7 @@ class HomeService:
         if not block:
             raise HTTPException(
                 status_code=404, detail="Data not found in the database.")
-        delete_block_image = await home_repo.delete_image(block["block_image_url"])
+        await home_repo.delete_image(block["block_image_url"])
         block_image_url = await home_repo.upload_image(block_image)
         await home_repo.update(block["_id"],{"block_image_url":block_image_url})
 

@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError as PydanticValidationError
 from typing import TypeVar, Generic, Optional, List, Dict
 from utilities.git_hub_utilities import upload_to_github,delete_file_from_github
 from utilities.utils import REPO_OWNER,REPO_NAME,FOLDER_PATH,BRANCH
+import base64
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -63,27 +64,36 @@ class CrudRepository(Generic[T]):
         if response is None:
             raise HTTPException(status_code=404, detail="Document not found")
         return response
-    async def upload_image(self,file: UploadFile = File(...)) :
-       
+    async def upload_image(self,file:UploadFile = None) :
+       if file:
+        # First, check the file size
+        file_content = await file.read()  # Read the content to check size
+        image_size = len(file_content)  # Get size in bytes
+        print(f"image size : {image_size}")
 
-        if file:
-            image_size = len(await file.read())
-            max_length = 10 * 1024 * 1024  # 10 MB
-            if image_size > max_length:
-                raise HTTPException(status_code=413, detail="File Size Exceeds the limit of 10 MB.")
-            
+        max_length = 10 * 1024 * 1024  # 10 MB limit
+        if image_size > max_length:
+            raise HTTPException(status_code=413, detail="File size exceeds the limit of 10 MB.")
+
+        # Reset the file pointer to the beginning after reading for size
+        await file.seek(0)
+
+        # Now read the actual content for uploading
         file_content = await file.read()
+        print(f"Actual content length: {len(file_content)}")
+        print(f"Encoded content length: {len(base64.b64encode(file_content))}")
 
+    # Call your function to upload the image to GitHub here
         response = await upload_to_github(file_content, file.filename)
 
         if response.status_code == 201:
-            file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/{BRANCH}/{FOLDER_PATH}/{file.filename}"
+        # Ensure BRANCH and FOLDER_PATH are correctly set
+            file_url = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH}/{FOLDER_PATH}/{file.filename}"
         else:
-            raise HTTPException(
-                status_code=400, detail="Error uploading file to GitHub"
-            )
+            raise HTTPException(status_code=400, detail="Error uploading file to GitHub")
 
         return file_url
+
     async def delete_image(self,image_url:str) :
         block_image_delete = await delete_file_from_github(image_url)
         if block_image_delete.status_code != 200 :
