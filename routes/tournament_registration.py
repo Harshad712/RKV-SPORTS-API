@@ -44,13 +44,11 @@ async def update_team_details(
         player_positions: Optional[List[Optional[str]]] = Form(None),
         coach_name: Optional[str] = Form(None),
         contact_number: Optional[str] = Form(None),
-        registration_fee: Optional[float] = Form(None),
         additional_notes: Optional[str] = Form(None),
-        registration_date: Optional[datetime] = Form(None),
         status: Optional[RegistrationStatus] = Form(None)
     ):
     """An API Endpoint to update the team details. """
-    return await tournament_registration.update_team_details(team_name,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status)
+    return await tournament_registration.update_team_details(team_name,player_ids,player_names,player_positions,coach_name,contact_number,additional_notes,status)
 
 @app.put("/updateprofile",summary = "updates the profile of the team")
 async def update_team_profile(team_name:str = Form(...),team_profile :UploadFile = File(...)):

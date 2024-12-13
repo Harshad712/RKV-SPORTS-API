@@ -158,9 +158,7 @@ class TournamentRegistrationController:
         player_positions: Optional[List[Optional[str]]] = None,  # List of player positions
         coach_name: Optional[str] = None,
         contact_number: Optional[str] = None,
-        registration_fee: Optional[float] = None,
         additional_notes: Optional[str] = None,
-        registration_date: Optional[datetime] = None,
         status: Optional[RegistrationStatus] = None,
     ):
         """
@@ -189,7 +187,7 @@ class TournamentRegistrationController:
     Returns:
     - dict: A success message indicating the team details were updated successfully.
     """
-        return await tournament_registration_service.update_team_details(team_name,player_ids,player_names,player_positions,coach_name,contact_number,registration_fee,additional_notes,registration_date,status)
+        return await tournament_registration_service.update_team_details(team_name,player_ids,player_names,player_positions,coach_name,contact_number,additional_notes,status)
     
     @staticmethod
     @handle_exception

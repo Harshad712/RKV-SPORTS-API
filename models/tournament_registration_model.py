@@ -63,7 +63,5 @@ class UpdateTeamDetails(BaseModel):
     players : Optional[List[Player]] = None
     coach_name: Optional[str] = None
     contact_number: Optional[str] = None
-    registration_fee: Optional[float] = None
     additional_notes: Optional[str] = None
-    registration_date: Optional[datetime] = None
     status: Optional[RegistrationStatus] = None

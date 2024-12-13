@@ -106,9 +106,7 @@ class TournamentRegristrationService:
         player_positions: Optional[List[Optional[str]]] = None,  # List of player positions
         coach_name: Optional[str] = None,
         contact_number: Optional[str] = None,
-        registration_fee: Optional[float] = None,
         additional_notes: Optional[str] = None,
-        registration_date: Optional[datetime] = None,
         status: Optional[RegistrationStatus] = None,
     ):
         # Fetch the team to be updated
@@ -149,15 +147,14 @@ class TournamentRegristrationService:
         for player in existing_players:
             if player["player_id"] not in player_ids:
                 updated_players.append(player)
+      
 
       
         updated_team = UpdateTeamDetails(team_name=team_name,
                                           players=updated_players,
                                           coach_name=coach_name,
                                           contact_number=contact_number,
-                                          registration_fee=registration_fee,
                                           additional_notes=additional_notes,
-                                          registration_date=registration_date,
                                           status=status)
         
         team_data = updated_team.model_dump(exclude_unset=True)
