@@ -156,7 +156,7 @@ class tournament_creation_service :
         )
     
     # Parse and structure sport-specific details if provided
-        if sport_specific_details:
+        ''' if sport_specific_details:
             sport_specific_details = json.loads(sport_specific_details)
     # Validate and ensure sport_specific_details is a valid dictionary
         if sport_specific_details is None:
@@ -173,7 +173,7 @@ class tournament_creation_service :
             sport_specific_details = SportSpecificDetails(hockey=HockeyDetails(**sport_specific_details))
         elif sport_type and sport_type.lower() == "badminton":
             sport_specific_details = SportSpecificDetails(badminton=BadmintonDetails(**sport_specific_details))
-    
+         '''
     # Populate the tournament data model
         tournament_data = UpateTournament(
             tournament_name=tournament_name,
@@ -195,7 +195,7 @@ class tournament_creation_service :
         update_data = {k: v for k, v in tournament.items() if v is not None}
     
     # Perform the update in the repository
-        update_tournament = await tournament_creation_repo.update(tournament_exists["_id"], update_data)
+        await tournament_creation_repo.update(tournament_exists["_id"], update_data)
     
         return {"message": "Tournament updated successfully"}
     
